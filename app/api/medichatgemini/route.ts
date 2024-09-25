@@ -1,5 +1,7 @@
 import { queryPineconeVectorStore } from "@/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // import { Message, OpenAIStream, StreamData, StreamingTextResponse } from "ai";
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText, Message, StreamData, streamText } from "ai";
@@ -19,11 +21,15 @@ const google = createGoogleGenerativeAI({
 
 // gemini-1.5-pro-latest
 // gemini-1.5-pro-exp-0801
-const model = google('models/gemini-1.5-pro-latest', {
+const model = google('models/gemini-1.5-flash', {
     safetySettings: [
         { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
     ],
 });
+
+// const model = genAI.getGenerativeModel({
+//     model: "gemini-1.5-flash",
+// });
 
 export async function POST(req: Request, res: Response) {
     const reqBody = await req.json();
@@ -35,7 +41,7 @@ export async function POST(req: Request, res: Response) {
     const reportData: string = reqBody.data.reportData;
     const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
 
-    const retrievals = await queryPineconeVectorStore(pinecone, 'medic', "ns1", query);
+    const retrievals = await queryPineconeVectorStore(pinecone, 'index-one', "testspace2", query);
 
     const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
   Go through the clinical report and answer the user query.
