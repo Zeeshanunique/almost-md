@@ -10,8 +10,9 @@ const inter = Inter({ subsets: ["latin"] });
 const source_code_pro = Source_Code_Pro({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MediBudy!",
-  description: "The med-school dropout with a solid advice",
+  title: "MediBuddy",
+  description: "The law-school dropout with a solid advice",
+  icons:['/favicon.ico'],
 };
 
 export default function RootLayout({

@@ -143,6 +143,25 @@ const ReportComponent = ({ onReportConfirmation }: Props) => {
         setIsLoading(false);
 
     }
+    function viewUpdatedDocument() {
+        if (base64Data) {
+            const mimeType = base64Data.substring(
+                base64Data.indexOf(":") + 1,
+                base64Data.indexOf(";")
+            );
+            const newWindow = window.open();
+            if (newWindow) {
+                newWindow.document.write(
+                    `<iframe width="100%" height="100%" src="data:${mimeType};base64,${base64Data.split(',')[1]}"></iframe>`
+                );
+            }
+        } else {
+            toast({
+                variant: 'destructive',
+                description: "No document available to view!",
+            });
+        }
+    }
 
     return (
         // <div className="grid w-full items-start gap-6">
@@ -161,6 +180,13 @@ const ReportComponent = ({ onReportConfirmation }: Props) => {
                     // accept='image/*' 
                     onChange={handleReportSelection} />
                 <Button onClick={extractDetails}>1. Upload File</Button>
+                <Button
+                    variant="outline"
+                    className="text-sm"
+                    onClick={viewUpdatedDocument}
+                >
+                    View File
+                </Button>
                 <Label>Report Summary</Label>
                 <Textarea
                     value={reportData}
@@ -171,12 +197,12 @@ const ReportComponent = ({ onReportConfirmation }: Props) => {
                     className="min-h-72 resize-none border-0 p-3 shadow-none focus-visible:ring-0" />
                 <Button
                     variant="destructive"
-                    className="bg-[#D90013]"
+                    className="bg-[#0074d976]"
                     onClick={() => {
                         onReportConfirmation(reportData);
                     }}
                 >
-                    2. Looks Good
+                    2. Confirm Report
                 </Button>
                 <div className='flex flex-row items-center justify-center gap-2 p-4'>
                     <Label>Share your thoughts </Label>
