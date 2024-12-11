@@ -45,6 +45,7 @@ export async function POST(req: Request, res: Response) {
 
     const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
   Go through the clinical report and answer the user query.
+  provide tabular data (only important parameter).
   Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
   Before answering you may enrich your knowledge by going through the provided clinical findings. 
   The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
