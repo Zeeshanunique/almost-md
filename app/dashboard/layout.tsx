@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs'
+import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
@@ -6,9 +6,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { userId } = auth()
+  const user = await currentUser()
   
-  if (!userId) {
+  if (!user) {
     redirect('/sign-in')
   }
 
