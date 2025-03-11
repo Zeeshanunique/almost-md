@@ -1,110 +1,74 @@
 import { queryPineconeVectorStore } from "@/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GoogleGenerativeAIStream, StreamingTextResponse } from 'ai';
-import { Message, StreamData } from "ai";
+// import { Message, OpenAIStream, StreamData, StreamingTextResponse } from "ai";
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { generateText, Message, StreamData, streamText } from "ai";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60;
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 const pinecone = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY ?? "",
 });
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+const google = createGoogleGenerativeAI({
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+    apiKey: process.env.GEMINI_API_KEY
+});
 
-export async function POST(req: Request) {
+// gemini-1.5-pro-latest
+// gemini-1.5-pro-exp-0801
+const model = google('models/gemini-1.5-pro-latest', {
+    safetySettings: [
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+    ],
+});
+
+export async function POST(req: Request, res: Response) {
     const reqBody = await req.json();
+    console.log(reqBody);
+
     const messages: Message[] = reqBody.messages;
-    const userQuestion = messages[messages.length - 1].content;
-    const reportData: string = reqBody.data?.reportData || '';
+    const userQuestion = `${messages[messages.length - 1].content}`;
 
-    // If there's no report data, proceed with normal chat
-    if (!reportData) {
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const formattedMessages = messages.map((message: any) => ({
-            role: message.role === 'user' ? 'user' : 'model',
-            parts: [{ text: message.content }],
-        }));
+    const reportData: string = reqBody.data.reportData;
+    const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
 
-        try {
-            const chat = model.startChat({
-                history: formattedMessages,
-                generationConfig: {
-                    maxOutputTokens: 1000,
-                    temperature: 0.7,
-                },
-            });
+    const retrievals = await queryPineconeVectorStore(pinecone, 'medic', "ns1", query);
 
-            const result = await chat.sendMessageStream(userQuestion);
-            return new StreamingTextResponse(GoogleGenerativeAIStream(result));
-        } catch (error) {
-            console.error('Error in chat:', error);
-            return new Response(
-                JSON.stringify({
-                    error: 'Failed to process chat request',
-                    details: error instanceof Error ? error.message : 'Unknown error',
-                }),
-                { status: 500, headers: { 'Content-Type': 'application/json' } }
-            );
+    const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
+  Go through the clinical report and answer the user query.
+  Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
+  Before answering you may enrich your knowledge by going through the provided clinical findings. 
+  The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
+
+  \n\n**Patient's Clinical report summary:** \n${reportData}. 
+  \n**end of patient's clinical report** 
+
+  \n\n**User Query:**\n${userQuestion}?
+  \n**end of user query** 
+
+  \n\n**Generic Clinical findings:**
+  \n\n${retrievals}. 
+  \n\n**end of generic clinical findings** 
+
+  \n\nProvide thorough justification for your answer.
+  \n\n**Answer:**
+  `;
+
+    const data = new StreamData();
+    data.append({
+        retrievals: retrievals
+    });
+
+    const result = await streamText({
+        model: model,
+        prompt: finalPrompt,
+        onFinish() {
+            data.close();
         }
-    }
+    });
 
-    try {
-        const query = `Analyze this legal document and provide a clear, concise summary: ${reportData}`;
-        const retrievals = await queryPineconeVectorStore(pinecone, 'index-two', "legalspace", query);
-
-        const model = genAI.getGenerativeModel({ 
-            model: 'gemini-pro',
-            generationConfig: {
-                maxOutputTokens: 1000,
-                temperature: 0.5,
-            }
-        });
-
-        const prompt = `
-Task: Create a clear, professional summary of the following legal document and answer the user's question.
-
-Legal Document:
-${reportData}
-
-User Question:
-${userQuestion}
-
-Relevant Legal Context:
-${retrievals}
-
-Instructions:
-1. First, provide a BRIEF SUMMARY (maximum 100 words) of the legal document in clear, professional English.
-2. Then, answer the user's specific question using both the document and relevant legal context.
-3. Format the response as follows:
-
-DOCUMENT SUMMARY:
-[Your 100-word summary here]
-
-ANSWER TO YOUR QUESTION:
-[Your detailed answer here]
-
-Remember:
-- Use clear, professional language
-- Be concise but thorough
-- Cite specific parts of the document when relevant
-- Make clear when you're referencing general legal principles vs. the specific document
-`;
-
-        const result = await model.generateContentStream(prompt);
-        return new StreamingTextResponse(GoogleGenerativeAIStream(result));
-
-    } catch (error) {
-        console.error('Error processing document:', error);
-        return new Response(
-            JSON.stringify({
-                error: 'Failed to process document',
-                details: error instanceof Error ? error.message : 'Unknown error',
-            }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
-        );
-    }
+    return result.toDataStreamResponse({ data });
 }
-
