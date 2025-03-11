@@ -34,29 +34,38 @@ const ReportComponent = ({ onReportConfirmation }: Props) => {
         }
 
         setIsLoading(true)
-        const formData = new FormData()
-        formData.append('file', selectedFile)
 
         try {
-            const response = await fetch('/api/extract', {
+            // Convert file to base64
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(selectedFile);
+            });
+
+            const response = await fetch('/api/extractreportgemini', {
                 method: 'POST',
-                body: formData,
-            })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ base64 }),
+            });
 
             if (!response.ok) {
-                throw new Error('Failed to extract details')
+                throw new Error('Failed to extract details');
             }
 
-            const data = await response.json()
-            setDocumentData(data.text)
+            const text = await response.text();
+            setDocumentData(text);
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
             toast({
                 variant: 'destructive',
                 description: "Failed to extract details. Please try again.",
-            })
+            });
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
 
