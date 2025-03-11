@@ -33,28 +33,46 @@ export async function POST(req: Request, res: Response) {
     const userQuestion = `${messages[messages.length - 1].content}`;
 
     const reportData: string = reqBody.data.reportData;
-    const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
+    const query = `Analyze this legal document for relevant legal principles and clauses: \n${reportData}. \n\n${userQuestion}`;
 
-    const retrievals = await queryPineconeVectorStore(pinecone, 'medic', "ns1", query);
+    const retrievals = await queryPineconeVectorStore(pinecone, 'index-two', "legalspace", query);
 
-    const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
-  Go through the clinical report and answer the user query.
-  Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
-  Before answering you may enrich your knowledge by going through the provided clinical findings. 
-  The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
+    const finalPrompt = `You are a legal assistant AI. Here is a legal document and a user query, along with some relevant legal context. Please analyze the document and provide a professional response.
 
-  \n\n**Patient's Clinical report summary:** \n${reportData}. 
-  \n**end of patient's clinical report** 
+  \n\n**Legal Document Analysis:** \n${reportData}
+  \n**End of Legal Document** 
 
-  \n\n**User Query:**\n${userQuestion}?
-  \n**end of user query** 
+  \n\n**User Query:**\n${userQuestion}
+  \n**End of User Query** 
 
-  \n\n**Generic Clinical findings:**
-  \n\n${retrievals}. 
-  \n\n**end of generic clinical findings** 
+  \n\n**Relevant Legal Context:**
+  \n${retrievals}
+  \n**End of Legal Context** 
 
-  \n\nProvide thorough justification for your answer.
-  \n\n**Answer:**
+  Please structure your response as follows:
+
+  1. DOCUMENT SUMMARY:
+  - Provide a brief (2-3 sentences) summary of the key points from the legal document
+  - Highlight any particularly important clauses or terms
+
+  2. ANALYSIS:
+  - Address the user's specific question
+  - Reference relevant parts of the document
+  - Cite applicable legal principles from the provided context
+  - Explain any potential implications or considerations
+
+  3. RECOMMENDATIONS:
+  - Suggest next steps or actions if applicable
+  - Highlight any important deadlines or time-sensitive matters
+  - Note any areas where professional legal counsel may be needed
+
+  Remember:
+  - Use clear, professional language
+  - Be specific when referencing the document
+  - Make clear distinctions between general legal principles and document-specific details
+  - Include appropriate disclaimers about not providing formal legal advice
+
+  \n\n**Response:**
   `;
 
     const data = new StreamData();
