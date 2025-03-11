@@ -1,18 +1,25 @@
-import React from "react";
-import markdownit from "markdown-it";
-import DOMPurify from 'dompurify';
+'use client';
+
+import React from 'react';
+import MarkdownIt from 'markdown-it';
+import createDOMPurify from 'isomorphic-dompurify';
 
 type Props = {
   text: string;
 };
 
-const md = markdownit({
+const md = new MarkdownIt({
+  html: true,
+  breaks: true,
+  linkify: true,
 });
 
+const DOMPurify = createDOMPurify(window);
+
 const Markdown = ({ text }: Props) => {
-  const htmlcontent = md.render(text);
-  const sanitized = DOMPurify.sanitize(htmlcontent);
-  return <div dangerouslySetInnerHTML={{ __html: sanitized }}></div>;
+  const htmlContent = md.render(text || '');
+  const sanitizedContent = DOMPurify.sanitize(htmlContent);
+  return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }}></div>;
 };
 
 export default Markdown;
