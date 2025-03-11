@@ -1,14 +1,21 @@
-import type { Metadata } from "next";
-import { Inter, Source_Code_Pro } from "next/font/google";
+import { type Metadata } from "next";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
-// import { Toaster } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster"
-import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ["latin"] });
-const source_code_pro = Source_Code_Pro({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Kanoon - Your Legal Assistant",
@@ -23,14 +30,28 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={source_code_pro.className}>
+        <body className={`${inter.variable} antialiased`}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-            <TooltipProvider>{children}</TooltipProvider>
+            <header className="sticky top-0 z-10 flex h-[57px] bg-background items-center gap-1 border-b px-4">
+              <h1 className="text-xl font-semibold text-[#D90013]">
+                <span className="flex flex-row">Kanoon!</span>
+              </h1>
+              <div className="ml-auto flex items-center gap-4">
+                <SignedOut>
+                  <SignInButton />
+                  <SignUpButton />
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
+              </div>
+            </header>
+            {children}
             <Toaster />
           </ThemeProvider>
         </body>
