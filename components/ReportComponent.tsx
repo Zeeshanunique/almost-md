@@ -176,7 +176,7 @@ const ReportComponent = ({ onReportConfirmation }: Props) => {
                         onReportConfirmation(reportData);
                     }}
                 >
-                    2. Looks Good
+                    2. Confirm
                 </Button>
                 <div className='flex flex-row items-center justify-center gap-2 p-4'>
                     <Label>Share your thoughts </Label>

@@ -35,27 +35,27 @@ export async function POST(req: Request, res: Response) {
     const reportData: string = reqBody.data.reportData;
     const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
 
-    const retrievals = await queryPineconeVectorStore(pinecone, 'medic', "ns1", query);
+    const retrievals = await queryPineconeVectorStore(pinecone, 'index-two', "legalspace", query);
 
-    const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
-  Go through the clinical report and answer the user query.
-  Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
-  Before answering you may enrich your knowledge by going through the provided clinical findings. 
-  The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
+    const finalPrompt = `Here is a summary of a legal document, and a user query. Some general legal principles are also provided that may or may not be relevant to the document.
+    Go through the legal document and answer the user's query.
+    Ensure the response is factually accurate and demonstrates a thorough understanding of the query topic and the legal document.
+    Before answering, you may enrich your knowledge by going through the provided legal principles.
+    The legal principles are general insights and not necessarily part of the specific legal document. Do not include any legal principle if it is not relevant to the user's case.
 
-  \n\n**Patient's Clinical report summary:** \n${reportData}. 
-  \n**end of patient's clinical report** 
+    \n\n**Legal Document Summary:** \n${reportData}. 
+    \n**end of legal document** 
 
-  \n\n**User Query:**\n${userQuestion}?
-  \n**end of user query** 
+    \n\n**User Query:**\n${userQuestion}?
+    \n**end of user query** 
 
-  \n\n**Generic Clinical findings:**
-  \n\n${retrievals}. 
-  \n\n**end of generic clinical findings** 
+    \n\n**General Legal Principles:**
+    \n\n${retrievals}. 
+    \n\n**end of general legal principles** 
 
-  \n\nProvide thorough justification for your answer.
-  \n\n**Answer:**
-  `;
+    \n\nProvide thorough justification for your answer.
+    \n\n**Answer:**
+    `;
 
     const data = new StreamData();
     data.append({
