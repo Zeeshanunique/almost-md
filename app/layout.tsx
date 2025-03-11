@@ -1,4 +1,4 @@
-import { type Metadata } from "next";
+import type { Metadata } from 'next'
 import {
   ClerkProvider,
   SignInButton,
@@ -6,26 +6,26 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
-} from "@clerk/nextjs";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
+} from '@clerk/nextjs'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
-  title: "Kanoon - Your Legal Assistant",
-  description: "Get instant legal guidance and document analysis powered by AI",
-};
+  title: 'Kanoon - Your Legal Assistant',
+  description: 'Get instant legal guidance and document analysis powered by AI',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <ClerkProvider>
@@ -43,8 +43,16 @@ export default function RootLayout({
               </h1>
               <div className="ml-auto flex items-center gap-4">
                 <SignedOut>
-                  <SignInButton />
-                  <SignUpButton />
+                  <SignInButton mode="modal">
+                    <button className="rounded-md px-3 py-2 text-sm hover:bg-muted">
+                      Sign in
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="rounded-md bg-[#D90013] px-3 py-2 text-sm text-white hover:bg-[#B80011]">
+                      Sign up
+                    </button>
+                  </SignUpButton>
                 </SignedOut>
                 <SignedIn>
                   <UserButton afterSignOutUrl="/" />
@@ -57,5 +65,5 @@ export default function RootLayout({
         </body>
       </html>
     </ClerkProvider>
-  );
+  )
 }

@@ -1,20 +1,20 @@
-import { currentUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
+import { auth } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const user = await currentUser();
-
-  if (!user) {
-    redirect("/sign-in");
+  const { userId } = auth()
+  
+  if (!userId) {
+    redirect('/sign-in')
   }
 
   return (
     <div className="flex min-h-[calc(100vh-57px)] flex-col">
       {children}
     </div>
-  );
+  )
 } 

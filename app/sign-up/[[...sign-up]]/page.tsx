@@ -10,9 +10,7 @@ export default function SignUpPage() {
             footerActionLink: "text-[#D90013] hover:text-[#B80011]",
           },
         }}
-        redirectUrl="/dashboard"
-        routing="path"
-        signInUrl="/sign-in"
+        afterSignUpUrl="/dashboard"
       />
     </div>
   );
