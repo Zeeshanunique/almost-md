@@ -1,5 +1,7 @@
 import { queryPineconeVectorStore } from "@/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // import { Message, OpenAIStream, StreamData, StreamingTextResponse } from "ai";
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText, Message, StreamData, streamText } from "ai";
@@ -19,11 +21,15 @@ const google = createGoogleGenerativeAI({
 
 // gemini-1.5-pro-latest
 // gemini-1.5-pro-exp-0801
-const model = google('models/gemini-1.5-pro-latest', {
+const model = google('models/gemini-1.5-flash', {
     safetySettings: [
         { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
     ],
 });
+
+// const model = genAI.getGenerativeModel({
+//     model: "gemini-1.5-flash",
+// });
 
 export async function POST(req: Request, res: Response) {
     const reqBody = await req.json();
@@ -35,6 +41,7 @@ export async function POST(req: Request, res: Response) {
     const reportData: string = reqBody.data.reportData;
     const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
 
+<<<<<<< HEAD
     const retrievals = await queryPineconeVectorStore(pinecone, 'index-two', "legalspace", query);
 
     const finalPrompt = `Here is a summary of a legal document, and a user query. Some general legal principles are also provided that may or may not be relevant to the document.
@@ -42,6 +49,16 @@ export async function POST(req: Request, res: Response) {
     Ensure the response is factually accurate and demonstrates a thorough understanding of the query topic and the legal document.
     Before answering, you may enrich your knowledge by going through the provided legal principles.
     The legal principles are general insights and not necessarily part of the specific legal document. Do not include any legal principle if it is not relevant to the user's case.
+=======
+    const retrievals = await queryPineconeVectorStore(pinecone, 'index-one', "testspace2", query);
+
+    const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
+  Go through the clinical report and answer the user query.
+  provide tabular data (only important parameter).
+  Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
+  Before answering you may enrich your knowledge by going through the provided clinical findings. 
+  The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
+>>>>>>> 40d74e3d60581f40e687e72d6ee01bbc0e90c768
 
     \n\n**Legal Document Summary:** \n${reportData}. 
     \n**end of legal document** 

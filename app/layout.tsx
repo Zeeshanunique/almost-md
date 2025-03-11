@@ -18,9 +18,9 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Kanoon - Your Legal Assistant',
-  description: 'Get instant legal guidance and document analysis powered by AI',
-}
+  title: "Mr. AlmostMD",
+  description: "The med-school dropout with a solid advice",
+};
 
 export default function RootLayout({
   children,
