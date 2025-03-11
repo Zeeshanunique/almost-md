@@ -243,67 +243,38 @@ const ChatComponent: React.FC<Props> = ({ reportData }) => {
         </p>
       </div>
 
+      {/* Predefined Questions */}
+      <PredefinedQuestions onQuestionClick={handlePredefinedQuestionClick} />
+
       {/* Scrollable Message Container */}
       <div className="flex-1 overflow-y-auto">
         <Messages messages={messages} isLoading={isLoading} />
       </div>
 
-      {/* Predefined Questions and Accordion */}
-      <div className="space-y-4">
-        {data?.length && data.length > 0 && (
-          <Accordion type="single" className="text-sm" collapsible>
-            <AccordionItem value="item-1">
-              <AccordionTrigger>
-                <span className="flex flex-row items-center gap-2">
-                  <TextSearch /> Relevant Info
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="whitespace-pre-wrap">
-                <Markdown
-                  text={(data[data.length - 1] as any).retrievals as string}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
-        <PredefinedQuestions onQuestionClick={handlePredefinedQuestionClick} />
-      </div>
-
       {/* Input Form */}
       <form
-        className="relative overflow-hidden rounded-lg border bg-background"
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleSubmit(event, {
-            data: {
-              reportData: reportData ?? "",
-            },
-          });
-        }}
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2"
       >
-        {/* Text Area */}
         <Textarea
           value={input}
           onChange={handleInputChange}
-          placeholder="Type your query here..."
-          className="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0"
+          placeholder="Type your question..."
+          className="min-h-[60px] w-full resize-none rounded-xl"
         />
-        <div className="flex items-center p-3 pt-0">
-          {/* Submit Button */}
-          <Button 
-            disabled={isLoading || !input.trim()} 
-            type="submit" 
-            size="sm" 
-            className="ml-auto"
-          >
-            {isLoading ? "Analysing..." : "3. Ask"}
-            {isLoading ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <CornerDownLeft className="size-3.5" />
-            )}
-          </Button>
-        </div>
+        <Button
+          type="submit"
+          size="icon"
+          disabled={isLoading || !input}
+          className="h-[60px] w-[60px] shrink-0 rounded-xl bg-[#D90013] text-white hover:bg-[#B80011]"
+        >
+          {isLoading ? (
+            <Loader2 className="h-6 w-6 animate-spin" />
+          ) : (
+            <CornerDownLeft className="h-6 w-6" />
+          )}
+          <span className="sr-only">Send message</span>
+        </Button>
       </form>
     </div>
   );
