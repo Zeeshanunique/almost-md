@@ -9,8 +9,24 @@ export default authMiddleware({
     "/sign-in",
     "/sign-up",
     "/api/extract",
-    "/api/chat"
-  ]
+    "/api/chat",
+    "/api/extractreportgemini",
+    "/api/medichatgemini"
+  ],
+  afterAuth(auth, req, evt) {
+    // Handle users who aren't authenticated
+    if (!auth.userId && !auth.isPublicRoute) {
+      const signInUrl = new URL('/sign-in', req.url);
+      signInUrl.searchParams.set('redirect_url', req.url);
+      return Response.redirect(signInUrl);
+    }
+
+    // Redirect signed in users from public routes to dashboard
+    if (auth.userId && auth.isPublicRoute && req.nextUrl.pathname === '/') {
+      const dashboardUrl = new URL('/dashboard', req.url);
+      return Response.redirect(dashboardUrl);
+    }
+  }
 });
 
 export const config = {
