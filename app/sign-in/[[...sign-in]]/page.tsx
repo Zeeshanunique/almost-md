@@ -10,6 +10,8 @@ export default function SignInPage() {
             footerActionLink: "text-[#D90013] hover:text-[#B80011]",
           },
         }}
+        afterSignInUrl="/dashboard"
+        afterSignUpUrl="/dashboard"
       />
     </div>
   );

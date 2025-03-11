@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/app-beta";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
