@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MarkdownIt from 'markdown-it';
 import createDOMPurify from 'isomorphic-dompurify';
 
@@ -14,11 +14,15 @@ const md = new MarkdownIt({
   linkify: true,
 });
 
-const DOMPurify = createDOMPurify(window);
-
 const Markdown = ({ text }: Props) => {
-  const htmlContent = md.render(text || '');
-  const sanitizedContent = DOMPurify.sanitize(htmlContent);
+  const [sanitizedContent, setSanitizedContent] = useState('');
+
+  useEffect(() => {
+    const DOMPurify = createDOMPurify(window);
+    const htmlContent = md.render(text || '');
+    setSanitizedContent(DOMPurify.sanitize(htmlContent));
+  }, [text]);
+
   return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }}></div>;
 };
 
