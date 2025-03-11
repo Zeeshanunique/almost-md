@@ -1,14 +1,13 @@
 import { queryPineconeVectorStore } from "@/utils";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-// import { Message, OpenAIStream, StreamData, StreamingTextResponse } from "ai";
+import { GoogleGenerativeAIStream, StreamingTextResponse } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText, Message, StreamData, streamText } from "ai";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 60;
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 const pinecone = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY ?? "",
@@ -27,66 +26,47 @@ const model = google('models/gemini-1.5-flash', {
     ],
 });
 
-// const model = genAI.getGenerativeModel({
-//     model: "gemini-1.5-flash",
-// });
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 
-export async function POST(req: Request, res: Response) {
-    const reqBody = await req.json();
-    console.log(reqBody);
+export async function POST(req: Request) {
+  const { messages } = await req.json();
 
-    const messages: Message[] = reqBody.messages;
-    const userQuestion = `${messages[messages.length - 1].content}`;
+  const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-    const reportData: string = reqBody.data.reportData;
-    const query = `Represent this for searching relevant passages: patient medical report says: \n${reportData}. \n\n${userQuestion}`;
+  // Convert messages to Gemini format
+  const formattedMessages = messages.map((message: any) => ({
+    role: message.role === 'user' ? 'user' : 'model',
+    parts: [{ text: message.content }],
+  }));
 
-<<<<<<< HEAD
-    const retrievals = await queryPineconeVectorStore(pinecone, 'index-two', "legalspace", query);
-
-    const finalPrompt = `Here is a summary of a legal document, and a user query. Some general legal principles are also provided that may or may not be relevant to the document.
-    Go through the legal document and answer the user's query.
-    Ensure the response is factually accurate and demonstrates a thorough understanding of the query topic and the legal document.
-    Before answering, you may enrich your knowledge by going through the provided legal principles.
-    The legal principles are general insights and not necessarily part of the specific legal document. Do not include any legal principle if it is not relevant to the user's case.
-=======
-    const retrievals = await queryPineconeVectorStore(pinecone, 'index-one', "testspace2", query);
-
-    const finalPrompt = `Here is a summary of a patient's clinical report, and a user query. Some generic clinical findings are also provided that may or may not be relevant for the report.
-  Go through the clinical report and answer the user query.
-  provide tabular data (only important parameter).
-  Ensure the response is factually accurate, and demonstrates a thorough understanding of the query topic and the clinical report.
-  Before answering you may enrich your knowledge by going through the provided clinical findings. 
-  The clinical findings are generic insights and not part of the patient's medical report. Do not include any clinical finding if it is not relevant for the patient's case.
->>>>>>> 40d74e3d60581f40e687e72d6ee01bbc0e90c768
-
-    \n\n**Legal Document Summary:** \n${reportData}. 
-    \n**end of legal document** 
-
-    \n\n**User Query:**\n${userQuestion}?
-    \n**end of user query** 
-
-    \n\n**General Legal Principles:**
-    \n\n${retrievals}. 
-    \n\n**end of general legal principles** 
-
-    \n\nProvide thorough justification for your answer.
-    \n\n**Answer:**
-    `;
-
-    const data = new StreamData();
-    data.append({
-        retrievals: retrievals
+  try {
+    const chat = model.startChat({
+      history: formattedMessages,
+      generationConfig: {
+        maxOutputTokens: 1000,
+        temperature: 0.7,
+      },
     });
 
-    const result = await streamText({
-        model: model,
-        prompt: finalPrompt,
-        onFinish() {
-            data.close();
-        }
-    });
+    const result = await chat.sendMessageStream(messages[messages.length - 1].content);
 
-    return result.toDataStreamResponse({ data });
+    // Convert the response to a friendly text-stream
+    const stream = GoogleGenerativeAIStream(result);
+
+    // Return the stream
+    return new StreamingTextResponse(stream);
+  } catch (error) {
+    console.error('Error in Gemini chat:', error);
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to process your request',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
 }
 
