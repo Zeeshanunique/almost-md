@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/dist/server'
+import { auth } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 
 export default async function DashboardLayout({
