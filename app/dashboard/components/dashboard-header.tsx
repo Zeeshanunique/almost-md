@@ -17,17 +17,6 @@ export function DashboardHeader() {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4">
-          <ModeToggle />
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "w-10 h-10",
-              },
-            }}
-          />
-        </div>
       </div>
     </header>
   );
