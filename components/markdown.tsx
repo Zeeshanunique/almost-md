@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import MarkdownIt from 'markdown-it';
-import createDOMPurify from 'isomorphic-dompurify';
+import DOMPurify from 'dompurify';
 
 type Props = {
   text: string;
@@ -19,7 +19,6 @@ const Markdown = ({ text }: Props) => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const DOMPurify = createDOMPurify(window);
       const htmlContent = md.render(text || '');
       setSanitizedContent(DOMPurify.sanitize(htmlContent));
     }
