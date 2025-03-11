@@ -1,6 +1,6 @@
 "use client";
 
-import { UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { ModeToggle } from "@/components/modetoggle";
 
 export function DashboardHeader() {
@@ -17,16 +17,8 @@ export function DashboardHeader() {
             </span>
           )}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           <ModeToggle />
-          <UserButton
-            afterSignOutUrl="/"
-            appearance={{
-              elements: {
-                avatarBox: "w-10 h-10",
-              },
-            }}
-          />
         </div>
       </div>
     </header>
