@@ -18,9 +18,11 @@ const Markdown = ({ text }: Props) => {
   const [sanitizedContent, setSanitizedContent] = useState('');
 
   useEffect(() => {
-    const DOMPurify = createDOMPurify(window);
-    const htmlContent = md.render(text || '');
-    setSanitizedContent(DOMPurify.sanitize(htmlContent));
+    if (typeof window !== 'undefined') {
+      const DOMPurify = createDOMPurify(window);
+      const htmlContent = md.render(text || '');
+      setSanitizedContent(DOMPurify.sanitize(htmlContent));
+    }
   }, [text]);
 
   return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }}></div>;
