@@ -48,12 +48,17 @@ const ChatComponent: React.FC<Props> = ({ reportData }) => {
     handleSubmit, 
     isLoading
   } = useChat({
-    api: "/api/chat",
+    api: "/api/medichatgemini",
+    body: {
+      data: {
+        reportData: reportData || ''
+      }
+    },
     initialMessages: [
       {
         id: "1",
         role: "system",
-        content: "I am a legal assistant. I can help you understand legal matters and procedures. While I provide general legal information, please note that this is not legal advice, and you should consult with a qualified lawyer for specific legal advice."
+        content: "I can try to help you understand your general rights in a given situation. To provide more accurate information, could you please provide me with details about the situation or the specific legal rights you are referring to?"
       }
     ]
   });
