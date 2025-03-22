@@ -68,9 +68,7 @@ const MessageBox = ({ role, content }: Props) => {
       </CardContent>
       {role !== "user" && (
         <CardFooter className="border-t bg-muted/50 px-6 py-3 text-xs text-muted-foreground">
-          Disclaimer: The medical advice and recommendations provided by this
-          application are for informational purposes only and should not
-          replace professional medical diagnosis, treatment, or advice.
+          Disclaimer: The information provided is for general informational purposes only and does not constitute legal advice. This should not be used as a substitute for professional legal counsel. Please consult with a qualified attorney for advice specific to your situation.
         </CardFooter>
       )}
     </Card>

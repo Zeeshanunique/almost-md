@@ -4,8 +4,8 @@ const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
 });
 
-const prompt = `Attached is an image of a clinical report. 
-Go over the the clinical report and identify biomarkers that show slight or large abnormalities. Then summarize in 100 words. You may increase the word limit if the report has multiple pages. Do not output patient name, date etc. Make sure to include numerical values and key details from the report, including report title.
+const prompt = `Attached is an image of a legal document. 
+Go over the legal document and identify key clauses that indicate specific rights, obligations, or potential legal issues. Then summarize in 100 words. You may increase the word limit if the document has multiple pages. Do not output client name, date, etc. Make sure to include numerical references and key details from the document, including document title.
 ## Summary: `;
 
 export async function POST(req: Request, res: Response) {
