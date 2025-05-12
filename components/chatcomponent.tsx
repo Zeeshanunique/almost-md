@@ -40,6 +40,136 @@ const PredefinedQuestions = ({
   </div>
 );
 
+// Supplements data
+const supplements: Supplement[] = [
+  {
+    id: 1,
+    name: "Vitamin D3",
+    description: "5000 IU Daily Supplement for Optimal Health",
+    image: "/images/vitamin_d.jpg",
+    badges: ["Bone Health", "Immune Support"],
+    price: 199,
+    reviewCount: 245,
+    averageRating: 4,
+    ingredients: [
+      "Vitamin D3 (Cholecalciferol)",
+      "Olive Oil",
+      "Gelatin",
+      "Glycerin"
+    ],
+    benefits: [
+      "Supports bone health",
+      "Boosts immune system",
+      "Improves mood",
+      "Enhances calcium absorption"
+    ],
+    dosage: "1 softgel daily"
+  },
+  {
+    id: 2,
+    name: "Omega-3 Fish Oil",
+    description: "1000mg High Potency DHA/EPA Supplement",
+    image: "/images/omega_3.jpg",
+    badges: ["Heart Health", "Brain Function"],
+    price: 256,
+    reviewCount: 189,
+    averageRating: 4,
+    ingredients: [
+      "Omega-3 Fish Oil Concentrate",
+      "Natural Lemon Flavor",
+      "Gelatin",
+      "Glycerin"
+    ],
+    benefits: [
+      "Supports heart health",
+      "Enhances brain function",
+      "Reduces inflammation",
+      "Supports joint health"
+    ],
+    dosage: "1-2 softgels daily"
+  },
+  {
+    id: 3,
+    name: "Probiotics",
+    description: "50 Billion CFU Advanced Digestive Support",
+    image: "/images/probiotics.jpg",
+    badges: ["Gut Health", "Immune Support"],
+    price: 399,
+    reviewCount: 312,
+    averageRating: 4,
+    ingredients: [
+      "Lactobacillus Acidophilus",
+      "Bifidobacterium Longum",
+      "Streptococcus Thermophilus",
+      "Prebiotic Fiber"
+    ],
+    benefits: [
+      "Supports digestive health",
+      "Boosts immune system",
+      "Balances gut microbiome",
+      "Reduces bloating"
+    ],
+    dosage: "1 capsule daily"
+  }
+];
+
+const MedicalSupplementCard: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedSupplement, setSelectedSupplement] = useState<Supplement | null>(null);
+
+  const handleSupplementClick = (supplement: Supplement) => {
+    setSelectedSupplement(supplement);
+    setIsOpen(true);
+  };
+
+  return (
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        {supplements.map((supplement) => (
+          <div
+            key={supplement.id}
+            onClick={() => handleSupplementClick(supplement)}
+            className="p-4 rounded-lg border bg-white shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-32 h-32 relative mb-3">
+                <img
+                  src={supplement.image}
+                  alt={`${supplement.name} Supplement`}
+                  className="rounded-md object-cover w-full h-full"
+                />
+              </div>
+              <div className="text-center">
+                <h3 className="font-semibold text-lg">{supplement.name}</h3>
+                <p className="text-sm text-gray-600">{supplement.description}</p>
+                <div className="flex flex-wrap justify-center gap-2 mt-2">
+                  {supplement.badges.map((badge, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-2 font-bold text-green-600">
+                ₹{supplement.price.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <MedicalSupplementDialog 
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        selectedSupplement={selectedSupplement}
+      />
+    </>
+  );
+};
+
 const ChatComponent: React.FC<Props> = ({ reportData }) => {
   const { 
     messages, 
