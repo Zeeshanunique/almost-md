@@ -5,6 +5,22 @@ import { Button } from "./ui/button";
 import { CornerDownLeft, Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import Messages from "./messages";
+import MedicalSupplementDialog from "./MedicalSupplementDialog";
+
+// Define Supplement type
+type Supplement = {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  badges: string[];
+  price: number;
+  reviewCount: number;
+  averageRating: number;
+  ingredients: string[];
+  benefits: string[];
+  dosage: string;
+};
 
 // Props type
 type Props = {
